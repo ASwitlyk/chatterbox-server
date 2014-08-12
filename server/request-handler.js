@@ -4,18 +4,25 @@
  * You'll have to figure out a way to export this function from
  * this file and include it in basic-server.js so that it actually works.
  * *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html. */
+var storedMessages = {results: []};
 
-exports.handleRequest = function(request, response) {
+exports.handler = function(request, response) {
   /* the 'request' argument comes from nodes http module. It includes info about the
   request - such as what URL the browser is requesting. */
 
   /* Documentation for both request and response can be found at
    * http://nodemanual.org/0.8.14/nodejs_ref_guide/http.html */
 
+
   console.log("Serving request type " + request.method + " for url " + request.url);
   console.log(request.method);
 
-  var statusCode = request.method === 'GET' ? 200 : 201;
+
+  if(request.url !== 'http://127.0.0.1:3000/classes/messages'){
+    var statusCode = 404;
+  } else {
+    var statusCode;
+  }
 
   /* Without this line, this server wouldn't work. See the note
    * below about CORS. */
@@ -24,14 +31,50 @@ exports.handleRequest = function(request, response) {
   headers['Content-Type'] = "text/plain";
 
   /* .writeHead() tells our server what HTTP status code to send back */
-  response.writeHead(statusCode, headers);
+  // response.writeHead(statusCode, headers);
 
   /* Make sure to always call response.end() - Node will not send
    * anything back to the client until you do. The string you pass to
    * response.end() will be the body of the response - i.e. what shows
    * up in the browser.*/
-  results = {results: []};
-  response.end(JSON.stringify(results));
+  switch(request.method) {
+
+    case 'GET':
+
+      console.log('Our stored messages are: ',JSON.stringify(storedMessages[0]));
+      statusCode = 200;
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify(storedMessages));
+      break;
+
+    case 'POST':
+      var body = '';
+
+      request.setEncoding('utf8');
+      request.on('data', function(chunk) {
+        body += chunk;
+        console.log('this is input inside on data ',body);
+      });
+
+      request.on('end', function() {
+        console.log('Our input is: ', body);
+        var obj = JSON.stringify(body);
+        var parsedData = JSON.parse(obj);
+        console.log('our parsed Data is: ', parsedData);
+
+        storedMessages.results.push(parsedData);
+        statusCode = 201;
+        response.writeHead(statusCode, headers);
+        console.log('our Stored messages(expected test): ', JSON.stringify(storedMessages));
+        response.end(JSON.stringify(storedMessages));
+      });
+      break;
+
+    default:
+      response.writeHead(statusCode, headers);
+      response.end('error you dope');
+  }
+
 };
 
 /* These headers will allow Cross-Origin Resource Sharing (CORS).

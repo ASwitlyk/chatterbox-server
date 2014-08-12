@@ -12,6 +12,7 @@ describe('Live Node Chat Server', function() {
 
   it('Should send back parsable stringified JSON', function(done) {
     request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+      console.log('body is :', body);
       expect(JSON.parse.bind(this, body)).to.not.throw();
       done();
     });
@@ -55,11 +56,15 @@ describe('Live Node Chat Server', function() {
         username: 'Jono',
         message: 'Do my bidding!'}
     };
-
     request(requestParams, function(error, response, body) {
       // Now if we request the log, that message we posted should be there:
       request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+          console.log('body is: ', body);
           var messages = JSON.parse(body).results;
+          console.log("type of messages: ", typeof messages);
+          console.log("TEST: messages[0].username is ", JSON.parse(messages[0]).username);
+          console.log('MESSAGESIS : ', messages);
+          console.log('PARSED',JSON.parse(messages));
           expect(messages[0].username).to.equal('Jono');
           expect(messages[0].message).to.equal('Do my bidding!');
           done();
