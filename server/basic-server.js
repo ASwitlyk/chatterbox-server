@@ -1,7 +1,18 @@
 /* Import node's http module: */
 var http = require("http");
 var basic = require("request-handler.js");
+// var path = require("path");
 
+// console.log("localfolder: ", localfolder);
+
+// fs.readFile(localfolder, function(err, localfolder){
+//   if(!err){
+//     request.end(localfolder);
+//   } else {
+//     console.log("error");
+//   }
+// });
+// console.log('dirname is: ', __dirname);
 
 /* Every server needs to listen on a port with a unique number. The
  * standard port for HTTP servers is port 80, but that port is
