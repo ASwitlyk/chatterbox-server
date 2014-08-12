@@ -13,12 +13,12 @@ exports.handler = function(request, response) {
   /* Documentation for both request and response can be found at
    * http://nodemanual.org/0.8.14/nodejs_ref_guide/http.html */
 
-
   console.log("Serving request type " + request.method + " for url " + request.url);
-  console.log(request.method);
 
 
-  if(request.url !== 'http://127.0.0.1:3000/classes/messages'){
+  // var urlPath = url.pathname()
+
+  if(request.url.slice(0, 8) !== '/classes'){
     var statusCode = 404;
   } else {
     var statusCode;
@@ -40,9 +40,7 @@ exports.handler = function(request, response) {
   switch(request.method) {
 
     case 'GET':
-
-      console.log('Our stored messages are: ',JSON.stringify(storedMessages[0]));
-      statusCode = 200;
+      statusCode = statusCode ? statusCode : 200;
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify(storedMessages));
       break;
@@ -53,25 +51,20 @@ exports.handler = function(request, response) {
       request.setEncoding('utf8');
       request.on('data', function(chunk) {
         body += chunk;
-        console.log('this is input inside on data ',body);
       });
 
       request.on('end', function() {
-        console.log('Our input is: ', body);
-        var obj = JSON.stringify(body);
-        var parsedData = JSON.parse(obj);
-        console.log('our parsed Data is: ', parsedData);
-
+        var parsedData = JSON.parse(body);
         storedMessages.results.push(parsedData);
-        statusCode = 201;
+        statusCode = statusCode ? statusCode : 201;
         response.writeHead(statusCode, headers);
-        console.log('our Stored messages(expected test): ', JSON.stringify(storedMessages));
         response.end(JSON.stringify(storedMessages));
       });
       break;
 
     default:
       response.writeHead(statusCode, headers);
+      statusCode = 400;
       response.end('error you dope');
   }
 
